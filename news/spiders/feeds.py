@@ -6,7 +6,7 @@ import feedparser
 
 from news.items import FeedUrl
 
-with open('spiders/sites.txt') as f:
+with open('test.txt') as f:
     domains = f.readlines()
 
 URLS = ['http://{0}'.format(domain.strip()) for domain in domains if 'www'
