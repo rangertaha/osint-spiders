@@ -19,7 +19,7 @@ NEWSPIDER_MODULE = 'news.spiders'
 #USER_AGENT = 'news (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -64,9 +64,10 @@ DEFAULT_REQUEST_HEADERS = {
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'news.pipelines.SomePipeline': 300,
-#}
+ITEM_PIPELINES = {
+    'news.pipelines.JsonWriterPipeline': 300,
+}
+
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
@@ -90,22 +91,4 @@ DEFAULT_REQUEST_HEADERS = {
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 
-# Enables scheduling storing requests queue in rabbitmq.
-SCHEDULER = "scrapy_rabbitmq.scheduler.Scheduler"
 
-# Don't cleanup rabbitmq queues, allows to pause/resume crawls.
-SCHEDULER_PERSIST = True
-
-# Schedule requests using a priority queue. (default)
-SCHEDULER_QUEUE_CLASS = 'scrapy_rabbitmq.queue.SpiderQueue'
-
-# RabbitMQ Queue to use to store requests
-RABBITMQ_QUEUE_NAME = 'scrapy_queue'
-
-# Provide host and port to RabbitMQ daemon
-RABBITMQ_CONNECTION_PARAMETERS = {'host': 'localhost', 'port': 6666}
-
-# Store scraped item in rabbitmq for post-processing.
-ITEM_PIPELINES = {
-'scrapy_rabbitmq.pipelines.RabbitMQPipeline': 1
-}
