@@ -9,5 +9,6 @@ class JsonWriterPipeline(object):
 
     def process_item(self, item, spider):
         line = json.dumps(dict(item)) + "\n"
+        print line
         self.file.write(line)
         return item
