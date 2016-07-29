@@ -2,28 +2,19 @@
 import scrapy
 
 
-class FeedUrl(scrapy.Item):
-    url = scrapy.Field()
-
-
-class NewsSite(scrapy.Item):
-    country = scrapy.Field()
-    domain = scrapy.Field()
-    favicon = scrapy.Field()
-
-
 class Feed(scrapy.Item):
-    site = NewsSite()
+    domain = scrapy.Field()
     title = scrapy.Field()
     description = scrapy.Field()
     url = scrapy.Field()
     image = scrapy.Field()
+    crawled = 'DateTime'
 
 
 class FeedItem(scrapy.Item):
-    site = scrapy.Field()
+    domain = scrapy.Field()
     title = scrapy.Field()
     description = scrapy.Field()
     url = scrapy.Field()
-    image = scrapy.Field()
+    images = scrapy.Field()
     authors = scrapy.Field()
