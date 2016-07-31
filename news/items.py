@@ -36,3 +36,4 @@ class Article(scrapy.Item):
     image = scrapy.Field()
     authors = scrapy.Field()
     keywords = scrapy.Field()
+    length = scrapy.Field()
