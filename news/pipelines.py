@@ -1,14 +1,22 @@
 # -*- coding: utf-8 -*-
-import json
+import hashlib
+
+from elasticsearch import Elasticsearch
 
 
-class JsonWriterPipeline(object):
+class ElasticsearchPipeline(object):
 
     def __init__(self):
-        self.file = open('items.jl', 'wb')
+        self.es = Elasticsearch()
+
+    def get_id(self, item):
+        m = hashlib.md5()
+        url = item.get('url', None)
+        if url:
+            m.update(url)
+            return m.hexdigest()
 
     def process_item(self, item, spider):
-        line = json.dumps(dict(item)) + "\n"
-        print line
-        self.file.write(line)
+        id = self.get_id(item)
+        self.es.index(index="news", doc_type="article", id=id, body=dict(item))
         return item

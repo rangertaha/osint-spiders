@@ -1,12 +1,25 @@
+# -*- coding: utf-8 -*-
+"""
 
+
+"""
+import time
 import scrapy
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
+from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 import feedparser
+import newspaper
 
 from news.items import FeedUrl
 
-with open('news/test.txt') as f:
+
+
+
+
+
+
+with open('news/sites.txt') as f:
     domains = f.readlines()
 
 URLS = ['http://{0}'.format(domain.strip()) for domain in domains if 'www'
@@ -18,25 +31,41 @@ WWW_URLS = ['http://www.{0}'.format(domain.strip()) for domain in domains if
 URLS.extend(WWW_URLS)
 
 
-class FeedSpider(CrawlSpider):
-    name = 'feeds'
-    allowed_domains = domains
-    start_urls = URLS
-
+class NewsFeedSpider(CrawlSpider):
+    name = 'urls'
+    start_urls = newspaper.popular_urls()
     rules = (
-        # Extract links matching 'category.php' (but not matching 'subsection.php')
-        # and follow links from them (since no callback means follow=True by default).
-        #Rule(LinkExtractor(allow=('category\.php',), deny=('subsection\.php',))),
-        Rule(LinkExtractor(allow=('.*xml$', '.*xml.*', '.*rss.*', '.*feed.*', '.*feeds.*'), attrs=('href', 'data-url'))),
+        # '.*xml.*', '.*xml.*', '.*rss.*', '.*feed.*', '.*feeds.*'
+        Rule(LxmlLinkExtractor(
+            allow=('.*xml.*', '.*atom.*', '.*rss.*', '.*feed.*', '.*feeds.*'),
+            attrs=('href', 'data-url'),
+        ), callback='parse_item'),
 
-        Rule(LinkExtractor(allow=('.*xml$', '.*xml.*', '.*rss.*', '.*feed.*', '.*feeds.*')), callback='parse_item'),
+        Rule(LxmlLinkExtractor(
+            allow=('.*', ),
+            attrs=('href', 'data-url'),
+        )),
     )
 
     def parse_item(self, response):
-        item = FeedUrl()
-        item['url'] = response.url
-        print response.url
-        return item
+        try:
+            page = feedparser.parse(response.body)
+            if page.bozo == 0:
+                item = FeedUrl()
+                item['url'] = response.url
+                print response.url
+                return item
+        except:
+            pass
+
+
+
+
+
+
+"""
+
+
 
         try:
             page = feedparser.parse(response.body)
@@ -46,3 +75,46 @@ class FeedSpider(CrawlSpider):
                 return item
         except:
             pass
+
+
+
+
+
+        class ProfileSpider(scrapy.Spider):
+            name = 'myspider'
+
+            def start_requests(self):
+                while (True):
+                    yield self.make_requests_from_url(
+                        self._pop_queue()
+                    )
+
+            def _pop_queue(self):
+                while (True):
+                    yield self.queue.read()
+
+
+
+
+
+import nsq
+import tornado.ioloop
+import time
+
+def pub_message():
+    writer.pub('test', time.strftime('%H:%M:%S'), finish_pub)
+
+def finish_pub(conn, data):
+    print data
+
+writer = nsq.Writer(['127.0.0.1:4150'])
+tornado.ioloop.PeriodicCallback(pub_message, 1000).start()
+nsq.run()
+
+
+
+
+
+
+
+"""
