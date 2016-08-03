@@ -17,8 +17,7 @@ from urlparse import urlparse
 with open('news/news.txt') as f:
     domains = f.readlines()
 
-URLS = ['http://{0}'.format(domain.strip()) for domain in domains if 'www'
-        in domain]
+URLS = ['http://{0}'.format(domain.strip()) for domain in domains]
 
 WWW_URLS = ['http://www.{0}'.format(domain.strip()) for domain in domains if
         'www' not in domain]
@@ -28,7 +27,7 @@ URLS.extend(WWW_URLS)
 
 class ArticleSpider(CrawlSpider):
     name = 'articles'
-    #allowed_domains = domains
+    allowed_domains = domains
     start_urls = URLS
 
     rules = (
@@ -47,6 +46,7 @@ class ArticleSpider(CrawlSpider):
         parsed_uri = urlparse(response.url)
         article['domain'] = '{uri.scheme}://{uri.netloc}/'.format(
             uri=parsed_uri)
+        print response.url
 
         a = newspaper.Article(url=response.url, language='en')
         a.html = response.body
@@ -59,12 +59,14 @@ class ArticleSpider(CrawlSpider):
         article['image'] = a.top_image
         article['authors'] = a.authors
         article['keywords'] = a.keywords
+        article['length'] = len(a.text)
 
         title = article.get('title', None)
         desc = article.get('description', None)
         url = article.get('url', None)
+        length = article.get('length', 0)
 
-        if title and desc and url:
+        if title and desc and url and length > 1500:
             yield article
         
 

@@ -33,30 +33,31 @@ URLS.extend(WWW_URLS)
 
 class NewsFeedSpider(CrawlSpider):
     name = 'urls'
-    start_urls = newspaper.popular_urls()
+    allowed_domains = [domain.strip() for domain in domains]
+    start_urls = ['http://www.nytimes.com/services/xml/rss/index.html'] #URLS
+
+
+
     rules = (
         # '.*xml.*', '.*xml.*', '.*rss.*', '.*feed.*', '.*feeds.*'
         Rule(LxmlLinkExtractor(
-            allow=('.*xml.*', '.*atom.*', '.*rss.*', '.*feed.*', '.*feeds.*'),
-            attrs=('href', 'data-url'),
+            allow=('.*\.xml$', '.*\.atom$', '.*\.rss$', '.*\.feed$', '.*\.feeds$'),
         ), callback='parse_item'),
 
         Rule(LxmlLinkExtractor(
             allow=('.*', ),
-            attrs=('href', 'data-url'),
         )),
     )
 
     def parse_item(self, response):
-        try:
-            page = feedparser.parse(response.body)
-            if page.bozo == 0:
-                item = FeedUrl()
-                item['url'] = response.url
-                print response.url
-                return item
-        except:
-            pass
+        page = feedparser.parse(response.body)
+
+
+        item = FeedUrl()
+        item['url'] = response.url
+        print response.url
+        return item
+
 
 
 
