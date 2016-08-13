@@ -15,7 +15,7 @@ SPIDER_MODULES = ['news.spiders']
 NEWSPIDER_MODULE = 'news.spiders'
 
 LOG_LEVEL = 'INFO'
-LOG_FILE = 'news.log'
+#LOG_FILE = 'news.log'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'news (+http://www.yourdomain.com)'
@@ -67,7 +67,7 @@ DEFAULT_REQUEST_HEADERS = {
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'news.pipelines.ElasticsearchPipeline': 300,
+    #'news.pipelines.ElasticsearchPipeline': 300,
 }
 
 

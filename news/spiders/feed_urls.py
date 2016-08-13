@@ -34,7 +34,7 @@ URLS.extend(WWW_URLS)
 class NewsFeedSpider(CrawlSpider):
     name = 'urls'
     allowed_domains = [domain.strip() for domain in domains]
-    start_urls = ['http://www.nytimes.com/services/xml/rss/index.html'] #URLS
+    start_urls = ['http://www.nytimes.com/services/xml/rss/index.html']
 
 
 
@@ -50,13 +50,18 @@ class NewsFeedSpider(CrawlSpider):
     )
 
     def parse_item(self, response):
-        page = feedparser.parse(response.body)
+        print 'HELLO', response.headers
 
 
+        #page = feedparser.parse(response.body)
+
+        '''
         item = FeedUrl()
         item['url'] = response.url
         print response.url
         return item
+        '''
+
 
 
 

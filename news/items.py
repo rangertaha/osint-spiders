@@ -3,7 +3,7 @@ import scrapy
 
 
 class FeedUrl(scrapy.Item):
-    url = scrapy.Item()
+    url = scrapy.Field()
 
 
 class Feed(scrapy.Item):
