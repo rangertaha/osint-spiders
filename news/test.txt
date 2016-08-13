@@ -1,2 +1,3 @@
 cnn.com
 foxnews.com
+www.nytimes.com

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import hashlib
+from datetime import datetime
 
 from elasticsearch import Elasticsearch
 
@@ -18,5 +19,6 @@ class ElasticsearchPipeline(object):
 
     def process_item(self, item, spider):
         id = self.get_id(item)
+        item['timestamp'] = datetime.now()
         self.es.index(index="news", doc_type="article", id=id, body=dict(item))
         return item

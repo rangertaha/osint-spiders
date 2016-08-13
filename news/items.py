@@ -3,6 +3,7 @@ import scrapy
 
 
 class FeedUrl(scrapy.Item):
+    timestamp = scrapy.Field()
     url = scrapy.Field()
 
 

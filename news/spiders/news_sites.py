@@ -32,7 +32,7 @@ URLS.extend(WWW_URLS)
 
 
 class NewsFeedSpider(CrawlSpider):
-    name = 'urls'
+    name = 'sites'
     allowed_domains = [domain.strip() for domain in domains]
     start_urls = ['http://www.nytimes.com/services/xml/rss/index.html'] #URLS
 
