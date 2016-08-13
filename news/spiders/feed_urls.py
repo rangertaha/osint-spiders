@@ -33,13 +33,14 @@ URLS.extend(WWW_URLS)
 
 class NewsFeedSpider(CrawlSpider):
     name = 'urls'
+    allowed_domains = [i.strip() for i in domains]
     start_urls = newspaper.popular_urls()
     rules = (
         # '.*xml.*', '.*xml.*', '.*rss.*', '.*feed.*', '.*feeds.*'
         Rule(LxmlLinkExtractor(
             allow=('.*xml.*', '.*atom.*', '.*rss.*', '.*feed.*', '.*feeds.*'),
             attrs=('href', 'data-url'),
-        ), callback='parse_item'),
+        ), callback='parse_item', follow=True),
 
         Rule(LxmlLinkExtractor(
             allow=('.*', ),

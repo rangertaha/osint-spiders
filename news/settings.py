@@ -24,12 +24,12 @@ LOG_FILE = 'news.log'
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 100
+CONCURRENT_REQUESTS = 30
 
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 0
+DOWNLOAD_DELAY = 4
 # The download delay setting will honor only one of:
 CONCURRENT_REQUESTS_PER_DOMAIN = 10
 CONCURRENT_REQUESTS_PER_IP = 10
@@ -93,20 +93,20 @@ ITEM_PIPELINES = {
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 
-DEPTH_LIMIT = 4
+DEPTH_LIMIT = 0
 
 
 REACTOR_THREADPOOL_MAXSIZE = 20
 
 
 
-RETRY_ENABLED = True
+RETRY_ENABLED = False
 
 
 
 DOWNLOAD_TIMEOUT = 15
 
-REDIRECT_ENABLED = True
+REDIRECT_ENABLED = False
 
 
 AJAXCRAWL_ENABLED = True
