@@ -5,7 +5,8 @@
 """
 import time
 import scrapy
-from scrapy.spiders import CrawlSpider, Rule
+from scrapy.spiders import Rule, CrawlSpider
+from scrapy_redis.spiders import RedisCrawlSpider
 from scrapy.linkextractors import LinkExtractor
 from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
 import feedparser
@@ -44,7 +45,7 @@ class NewsFeedSpider(CrawlSpider):
 
         Rule(LxmlLinkExtractor(
             allow=('.*xml.*', '.*xml.*', '.*rss.*', '.*feed.*', '.*feeds.*'),
-        ), callback='parse_item'),
+        ), callback='parse_item', follow=True),
 
         Rule(LxmlLinkExtractor(
             allow=('.*', ),
@@ -60,74 +61,3 @@ class NewsFeedSpider(CrawlSpider):
                 url['url'] = response.url
                 yield url
 
-        #page = feedparser.parse(response.body)
-
-        '''
-        item = FeedUrl()
-        item['url'] = response.url
-        print response.url
-        return item
-        '''
-
-
-
-
-
-
-
-
-"""
-
-
-
-        try:
-            page = feedparser.parse(response.body)
-            if page.bozo == 0:
-                item = FeedUrl()
-                item['url'] = response.url
-                return item
-        except:
-            pass
-
-
-
-
-
-        class ProfileSpider(scrapy.Spider):
-            name = 'myspider'
-
-            def start_requests(self):
-                while (True):
-                    yield self.make_requests_from_url(
-                        self._pop_queue()
-                    )
-
-            def _pop_queue(self):
-                while (True):
-                    yield self.queue.read()
-
-
-
-
-
-import nsq
-import tornado.ioloop
-import time
-
-def pub_message():
-    writer.pub('test', time.strftime('%H:%M:%S'), finish_pub)
-
-def finish_pub(conn, data):
-    print data
-
-writer = nsq.Writer(['127.0.0.1:4150'])
-tornado.ioloop.PeriodicCallback(pub_message, 1000).start()
-nsq.run()
-
-
-
-
-
-
-
-"""

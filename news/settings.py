@@ -113,7 +113,6 @@ AJAXCRAWL_ENABLED = True
 
 
 
-'''
 
 
 # Enables scheduling storing requests queue in redis.
@@ -133,7 +132,7 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 
 
 # Don't cleanup redis queues, allows to pause/resume crawls.
-#SCHEDULER_PERSIST = True
+SCHEDULER_PERSIST = True
 
 # Schedule requests using a priority queue. (default)
 #SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.SpiderPriorityQueue'
@@ -147,9 +146,9 @@ DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 #SCHEDULER_IDLE_BEFORE_CLOSE = 10
 
 # Store scraped item in redis for post-processing.
-ITEM_PIPELINES = {
-    'scrapy_redis.pipelines.RedisPipeline': 300
-}
+#ITEM_PIPELINES = {
+#    'scrapy_redis.pipelines.RedisPipeline': 300
+#}
 
 # The item pipeline serializes and stores the items in this redis key.
 #REDIS_ITEMS_KEY = '%(spider)s:items'
@@ -181,4 +180,3 @@ ITEM_PIPELINES = {
 
 # Default start urls key for RedisSpider and RedisCrawlSpider.
 #REDIS_START_URLS_KEY = '%(name)s:start_urls'
-'''
