@@ -1,74 +1,60 @@
-import time
 from datetime import datetime
-import scrapy
-from scrapy.spiders import CrawlSpider, Rule, BaseSpider, Spider
-from scrapy.linkextractors import LinkExtractor
-from scrapy.linkextractors.lxmlhtml import LxmlLinkExtractor
-import feedparser
+from urllib.parse import urlparse
+
 import newspaper
+from scrapy.linkextractors import LinkExtractor
+from scrapy.spiders import CrawlSpider, Rule
+
 from news.items import Article
 
-from urlparse import urlparse
-
-
-
-
-
-with open('news/news.txt') as f:
+with open("news/news.txt") as f:
     domains = f.readlines()
 
-URLS = ['http://{0}'.format(domain.strip()) for domain in domains]
+URLS = [f"http://{domain.strip()}" for domain in domains]
 
-WWW_URLS = ['http://www.{0}'.format(domain.strip()) for domain in domains if
-        'www' not in domain]
+WWW_URLS = [f"http://www.{domain.strip()}" for domain in domains if "www" not in domain]
 
 URLS.extend(WWW_URLS)
 
 
 class ArticleSpider(CrawlSpider):
-    name = 'articles'
-    allowed_domains = domains
+    name = "articles"
+    allowed_domains = [domain.strip() for domain in domains]
     start_urls = URLS
 
     rules = (
         # '.*xml.*', '.*xml.*', '.*rss.*', '.*feed.*', '.*feeds.*'
-        Rule(LxmlLinkExtractor(
-             allow=('.*//.*/[-\w]+/.+', ),
-        ), callback='parse_item'),
-
-        Rule(LxmlLinkExtractor(
-            allow=('.*',),
-        )),
+        Rule(
+            LinkExtractor(allow=(r".*//.*/[-\w]+/.+",)),
+            callback="parse_item",
+        ),
+        Rule(LinkExtractor(allow=(r".*",))),
     )
 
     def parse_item(self, response):
         article = Article(timestamp=datetime.now())
         parsed_uri = urlparse(response.url)
-        article['domain'] = '{uri.scheme}://{uri.netloc}/'.format(
-            uri=parsed_uri)
-        print response.url
+        article["domain"] = f"{parsed_uri.scheme}://{parsed_uri.netloc}/"
+        self.logger.info(response.url)
 
-        a = newspaper.Article(url=response.url, language='en')
-        a.html = response.body
-        a.build()
+        a = newspaper.Article(url=response.url, language="en")
+        a.download(input_html=response.text)
+        a.parse()
+        a.nlp()
 
-        article['published'] = a.publish_date
-        article['title'] = a.title
-        article['description'] = a.summary
-        article['url'] = a.url
-        article['image'] = a.top_image
-        article['authors'] = a.authors
-        article['keywords'] = a.keywords
-        article['length'] = len(a.text)
+        article["published"] = a.publish_date
+        article["title"] = a.title
+        article["description"] = a.summary
+        article["url"] = a.url
+        article["image"] = a.top_image
+        article["authors"] = a.authors
+        article["keywords"] = a.keywords
+        article["length"] = len(a.text)
 
-        title = article.get('title', None)
-        desc = article.get('description', None)
-        url = article.get('url', None)
-        length = article.get('length', 0)
+        title = article.get("title")
+        desc = article.get("description")
+        url = article.get("url")
+        length = article.get("length", 0)
 
         if title and desc and url and length > 1500:
             yield article
-        
-
-
-

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import scrapy
 
 
@@ -14,7 +13,7 @@ class Feed(scrapy.Item):
     description = scrapy.Field()
     url = scrapy.Field()
     image = scrapy.Field()
-    crawled = 'DateTime'
+    crawled = scrapy.Field()
 
 
 class FeedItem(scrapy.Item):
