@@ -13,7 +13,7 @@ WWW_URLS = [f"http://www.{domain.strip()}" for domain in domains if "www" not in
 URLS.extend(WWW_URLS)
 
 
-class NewsFeedSpider(CrawlSpider):
+class FeedUrlSpider(CrawlSpider):
     name = "urls"
     allowed_domains = [domain.strip() for domain in domains]
     start_urls = URLS
@@ -44,9 +44,8 @@ class NewsFeedSpider(CrawlSpider):
 
     def parse_item(self, response):
         cts = response.headers.get("Content-Type", b"").decode("latin-1")
-        for ct in self.content_types:
-            if ct in cts:
-                self.logger.info(response.url)
-                url = FeedUrl()
-                url["url"] = response.url
-                yield url
+        if any(ct in cts for ct in self.content_types):
+            self.logger.info(response.url)
+            url = FeedUrl()
+            url["url"] = response.url
+            yield url

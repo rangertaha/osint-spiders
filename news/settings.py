@@ -68,6 +68,12 @@ ITEM_PIPELINES = {
     "news.pipelines.ElasticsearchPipeline": 300,
 }
 
+# Elasticsearch endpoint used by ElasticsearchPipeline.
+ELASTICSEARCH_URL = "http://localhost:9200"
+
+# RabbitMQ queue used by addsites.py to publish raw HTML for URL extraction.
+RABBITMQ_QUEUE_NAME = "news_urls"
+
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
@@ -87,7 +93,7 @@ AUTOTHROTTLE_DEBUG = False
 HTTPCACHE_ENABLED = True
 HTTPCACHE_EXPIRATION_SECS = 0
 HTTPCACHE_DIR = "httpcache"
-HTTPCACHE_IGNORE_HTTP_CODES = []
+HTTPCACHE_IGNORE_HTTP_CODES: list[int] = []
 HTTPCACHE_STORAGE = "scrapy.extensions.httpcache.FilesystemCacheStorage"
 
 

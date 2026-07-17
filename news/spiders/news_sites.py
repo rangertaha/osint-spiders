@@ -13,7 +13,7 @@ WWW_URLS = [f"http://www.{domain.strip()}" for domain in domains if "www" not in
 URLS.extend(WWW_URLS)
 
 
-class NewsFeedSpider(CrawlSpider):
+class NewsSiteSpider(CrawlSpider):
     name = "sites"
     allowed_domains = [domain.strip() for domain in domains]
     start_urls = ["http://www.nytimes.com/services/xml/rss/index.html"]  # URLS
