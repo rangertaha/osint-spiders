@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Seed data files moved from `news/*.txt` to `news/data/*.txt` and declared
+  as setuptools package data, so they ship in the wheel and sdist.
 - Require Python >= 3.12.
 - Scrapy upgraded to the 2.17 line.
 - elasticsearch client upgraded to 9.x.
@@ -41,6 +43,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Spider seed lists were `open()`ed at import time with paths relative to the
+  current working directory, so the spiders only worked when run from the
+  repository root and broke entirely when installed from a wheel (the `.txt`
+  files were not packaged). Spiders now load their seeds in `__init__` via
+  `news.seeds.load_seed_lines()`, which resolves the files through
+  `importlib.resources`, and the files are packaged under `news/data/`.
 - `addsites.py` crashed with `AttributeError` because
   `news.settings.RABBITMQ_QUEUE_NAME` did not exist; the setting is now
   defined.

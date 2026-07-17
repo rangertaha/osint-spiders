@@ -28,12 +28,18 @@ pip install -r requirements.txt
 
 ## Run
 
-Spiders are run from the project root with `scrapy crawl`:
+Spiders are run with `scrapy crawl`:
 
 ```sh
 uv run scrapy list            # articles, feeds, sites, urls
 uv run scrapy crawl articles
 ```
+
+Scrapy finds the project settings through `scrapy.cfg` in the repository
+root; to run from another directory (or from an installed wheel), set
+`SCRAPY_SETTINGS_MODULE=news.settings`. The seed lists are packaged data
+resolved via `importlib.resources`, so no particular working directory is
+required.
 
 The scheduler is [scrapy-redis](https://github.com/rmax/scrapy-redis), and
 scraped items are indexed into Elasticsearch, so a crawl needs **Redis** and
@@ -43,24 +49,26 @@ scraped items are indexed into Elasticsearch, so a crawl needs **Redis** and
 
 | Spider     | Class                                    | What it does |
 | ---------- | ---------------------------------------- | ------------ |
-| `articles` | `news.spiders.articles.ArticleSpider`    | Crawls the domains in `news/news.txt`, extracts full articles with newspaper4k (title, summary, authors, keywords, top image), and yields `Article` items for pieces longer than 1500 characters. |
-| `feeds`    | `news.spiders.feed_item.FeedItemSpider`  | Fetches each URL in `news/feeds.txt` and yields a `FeedUrl` item for every URL that parses as a valid feed (feedparser). |
-| `urls`     | `news.spiders.feed_urls.FeedUrlSpider`   | Crawls the domains in `news/news.txt` following feed-looking links (`*.xml`, `*.rss`, `*feed*`, ...) and yields a `FeedUrl` item for responses served with an XML/RSS Content-Type. |
+| `articles` | `news.spiders.articles.ArticleSpider`    | Crawls the domains in `news/data/news.txt`, extracts full articles with newspaper4k (title, summary, authors, keywords, top image), and yields `Article` items for pieces longer than 1500 characters. |
+| `feeds`    | `news.spiders.feed_item.FeedItemSpider`  | Fetches each URL in `news/data/feeds.txt` and yields a `FeedUrl` item for every URL that parses as a valid feed (feedparser). |
+| `urls`     | `news.spiders.feed_urls.FeedUrlSpider`   | Crawls the domains in `news/data/news.txt` following feed-looking links (`*.xml`, `*.rss`, `*feed*`, ...) and yields a `FeedUrl` item for responses served with an XML/RSS Content-Type. |
 | `sites`    | `news.spiders.news_sites.NewsSiteSpider` | Crawls feed index pages (currently seeded with the NYTimes RSS index) and yields `FeedUrl` items for feed links. |
 
 ### Seed data files
 
-The spiders read their seed lists at import time from plain-text files in
-`news/` (one domain or URL per line), **relative to the project root** — so
-always run `scrapy` from the repository root:
+The seed lists are plain-text files (one domain or URL per line) in
+`news/data/`, shipped as package data in the wheel/sdist. Spiders load them
+in `__init__` through `news.seeds.load_seed_lines()`, which resolves the
+files with `importlib.resources` — loading works from any working directory,
+both in a source checkout and from an installed wheel:
 
-| File            | Used by            | Contents |
-| --------------- | ------------------ | -------- |
-| `news/news.txt` | `articles`, `urls` | News site domains to crawl |
-| `news/feeds.txt`| `feeds`            | Candidate feed URLs to validate |
-| `news/sites.txt`| `sites`            | News site domains (allowed domains) |
-| `news/terms.txt`| (reference)        | Security/OSINT keyword list, not currently read by any spider |
-| `news/test.txt` | (reference)        | Small sample domain list for experiments |
+| File                 | Used by            | Contents |
+| -------------------- | ------------------ | -------- |
+| `news/data/news.txt` | `articles`, `urls` | News site domains to crawl |
+| `news/data/feeds.txt`| `feeds`            | Candidate feed URLs to validate |
+| `news/data/sites.txt`| `sites`            | News site domains (allowed domains) |
+| `news/data/terms.txt`| (reference)        | Security/OSINT keyword list, not currently read by any spider |
+| `news/data/test.txt` | (tests)            | Small sample domain list, used by the seed-loading tests |
 
 ## Configuration
 
@@ -108,12 +116,6 @@ contacted.
 
 ## Known limitations
 
-- **Seed files are cwd-relative and not packaged.** Spider modules `open()`
-  their `.txt` seed lists at import time relative to the current working
-  directory, and the files are not included in the wheel/sdist. Running from
-  the repository root works; running an installed distribution does not.
-  Moving the reads to `start_requests()` with `importlib.resources` (and
-  declaring the files as package data) is the planned fix.
 - **lxml override.** newspaper4k currently pins `lxml < 6`, but only
   `lxml >= 6.0.1` ships CPython 3.14 wheels. The `[tool.uv]`
   `override-dependencies` entry in `pyproject.toml` forces `lxml >= 6.0.1`

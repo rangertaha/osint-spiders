@@ -2,21 +2,16 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
 from news.items import FeedUrl
-
-with open("news/sites.txt") as f:
-    domains = f.readlines()
-
-URLS = [f"http://{domain.strip()}" for domain in domains if "www" in domain]
-
-WWW_URLS = [f"http://www.{domain.strip()}" for domain in domains if "www" not in domain]
-
-URLS.extend(WWW_URLS)
+from news.seeds import load_seed_lines
 
 
 class NewsSiteSpider(CrawlSpider):
     name = "sites"
-    allowed_domains = [domain.strip() for domain in domains]
-    start_urls = ["http://www.nytimes.com/services/xml/rss/index.html"]  # URLS
+    start_urls = ["http://www.nytimes.com/services/xml/rss/index.html"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.allowed_domains = load_seed_lines("sites.txt")
 
     rules = (
         # '.*xml.*', '.*xml.*', '.*rss.*', '.*feed.*', '.*feeds.*'

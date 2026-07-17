@@ -46,6 +46,10 @@ dev = [
 [tool.setuptools]
 packages = ["news", "news.spiders"]
 
+[tool.setuptools.package-data]
+# Seed lists read by the spiders via importlib.resources (news/seeds.py).
+news = ["data/*.txt"]
+
 [tool.uv]
 # newspaper4k pins lxml<6, but only lxml>=6.0.1 ships CPython 3.14 wheels.
 # newspaper4k works with lxml 6 (the lxml.html.clean split is already handled

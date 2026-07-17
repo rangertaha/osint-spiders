@@ -5,6 +5,7 @@ from datetime import datetime
 from scrapy.http import HtmlResponse, TextResponse, XmlResponse
 
 from news.items import Article, FeedUrl
+from news.seeds import load_seed_lines
 from news.spiders.articles import ArticleSpider
 from news.spiders.feed_item import FeedItemSpider
 from news.spiders.feed_urls import FeedUrlSpider
@@ -133,6 +134,42 @@ class TestFeedUrlSpider:
     def test_parse_item_ignores_html_content(self):
         spider = FeedUrlSpider()
         assert list(spider.parse_item(self.make_response("text/html"))) == []
+
+
+class TestSeedLoading:
+    """Seed lists are package data resolved via importlib.resources, so
+    instantiating the spiders must work from any working directory."""
+
+    def test_load_seed_lines_strips_and_drops_blank_lines(self):
+        assert load_seed_lines("test.txt") == [
+            "cnn.com",
+            "foxnews.com",
+            "www.nytimes.com",
+        ]
+
+    def test_spiders_load_seeds_with_unrelated_cwd(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+
+        articles = ArticleSpider()
+        assert articles.start_urls
+        assert articles.allowed_domains
+
+        feeds = FeedItemSpider()
+        assert feeds.start_urls
+
+        urls = FeedUrlSpider()
+        assert urls.start_urls
+        assert urls.allowed_domains
+
+        sites = NewsSiteSpider()
+        assert sites.allowed_domains
+
+    def test_www_variants_added_for_bare_domains(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        spider = ArticleSpider()
+        bare = [d for d in spider.allowed_domains if "www" not in d]
+        assert bare, "expected at least one bare domain in news.txt"
+        assert f"http://www.{bare[0]}" in spider.start_urls
 
 
 class TestNewsSiteSpider:

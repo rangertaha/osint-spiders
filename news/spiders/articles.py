@@ -6,21 +6,11 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
 from news.items import Article
-
-with open("news/news.txt") as f:
-    domains = f.readlines()
-
-URLS = [f"http://{domain.strip()}" for domain in domains]
-
-WWW_URLS = [f"http://www.{domain.strip()}" for domain in domains if "www" not in domain]
-
-URLS.extend(WWW_URLS)
+from news.seeds import load_seed_lines
 
 
 class ArticleSpider(CrawlSpider):
     name = "articles"
-    allowed_domains = [domain.strip() for domain in domains]
-    start_urls = URLS
 
     rules = (
         # '.*xml.*', '.*xml.*', '.*rss.*', '.*feed.*', '.*feeds.*'
@@ -30,6 +20,14 @@ class ArticleSpider(CrawlSpider):
         ),
         Rule(LinkExtractor(allow=(r".*",))),
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        domains = load_seed_lines("news.txt")
+        self.allowed_domains = domains
+        urls = [f"http://{domain}" for domain in domains]
+        urls.extend(f"http://www.{domain}" for domain in domains if "www" not in domain)
+        self.start_urls = urls
 
     def parse_item(self, response):
         article = Article(timestamp=datetime.now())
